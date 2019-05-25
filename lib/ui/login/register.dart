@@ -32,7 +32,7 @@ class RegisterPageState extends State<RegisterPage> {
     int space = 0;
     for (int i = 0; i < name.length; i++) {
       if (name[i] == ' ') {
-        space ++;
+        space++;
       }
     }
     return space;
@@ -43,7 +43,7 @@ class RegisterPageState extends State<RegisterPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Register"),
-        // automaticallyImplyLeading: false,
+        automaticallyImplyLeading: false,
       ),
       body: Form(
         key: _formKey,
@@ -54,7 +54,7 @@ class RegisterPageState extends State<RegisterPage> {
                 decoration: InputDecoration(
                   labelText: "User Id",
                   hintText: "User Id must be between 6 to 12",
-                  icon: Icon(Icons.person, size: 40, color: Colors.grey),
+                  prefixIcon: Icon(Icons.person, size: 30,),
                 ),
                 controller: userid,
                 keyboardType: TextInputType.text,
@@ -71,8 +71,8 @@ class RegisterPageState extends State<RegisterPage> {
                 decoration: InputDecoration(
                   labelText: "Name",
                   hintText: "Example. 'Apichart Pack'",
-                  icon:
-                      Icon(Icons.account_circle, size: 40, color: Colors.grey),
+                  prefixIcon:
+                      Icon(Icons.account_circle, size: 30,),
                 ),
                 controller: name,
                 keyboardType: TextInputType.text,
@@ -88,7 +88,7 @@ class RegisterPageState extends State<RegisterPage> {
                 decoration: InputDecoration(
                   labelText: "Age",
                   hintText: "Age Between 10 to 80",
-                  icon: Icon(Icons.event, size: 40, color: Colors.grey),
+                  prefixIcon: Icon(Icons.date_range, size: 30,),
                 ),
                 controller: age,
                 keyboardType: TextInputType.number,
@@ -105,7 +105,7 @@ class RegisterPageState extends State<RegisterPage> {
                 decoration: InputDecoration(
                   labelText: "Password",
                   hintText: "Password must longer than 6",
-                  icon: Icon(Icons.lock, size: 40, color: Colors.grey),
+                  prefixIcon: Icon(Icons.lock, size: 30,),
                 ),
                 controller: password,
                 obscureText: true,
@@ -115,7 +115,7 @@ class RegisterPageState extends State<RegisterPage> {
                     return "Please check Password loger 6";
                   }
                 }),
-            Padding(padding: EdgeInsets.all(15)),
+            Padding(padding: EdgeInsets.all(5.0)),
             RaisedButton(
                 child: Text("REGISTER NEW ACCOUNT"),
                 onPressed: () async {

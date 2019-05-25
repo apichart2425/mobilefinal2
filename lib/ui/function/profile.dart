@@ -1,8 +1,9 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
-import '../model/stateuser.dart';
-import '../model/userDB_SQL.dart';
+import '../../model/stateuser.dart';
+import '../../model/userDB_SQL.dart';
+import '../../ui/function/home.dart';
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -45,14 +46,14 @@ class ProfilePageState extends State<ProfilePage> {
     return double.parse(s, (e) => null) != null;
   }
 
-  int countSpace(String s) {
-    int result = 0;
-    for (int i = 0; i < s.length; i++) {
-      if (s[i] == ' ') {
-        result += 1;
+  int spaceInName(String name) {
+    int space = 0;
+    for (int i = 0; i < name.length; i++) {
+      if (name[i] == ' ') {
+        space += 1;
       }
     }
-    return result;
+    return space;
   }
 
   @override
@@ -70,8 +71,10 @@ class ProfilePageState extends State<ProfilePage> {
                     decoration: InputDecoration(
                       labelText: "User Id",
                       hintText: "User Id must be between 6 to 12",
-                      icon:
-                          Icon(Icons.account_box, size: 40, color: Colors.grey),
+                      icon: Icon(
+                        Icons.person,
+                        size: 30,
+                      ),
                     ),
                     controller: userid,
                     keyboardType: TextInputType.text,
@@ -79,66 +82,75 @@ class ProfilePageState extends State<ProfilePage> {
                       if (value.isEmpty) {
                         return "Please fill out this form";
                       } else if (user_state) {
-                        print("hey");
-                        return "This Username is taken";
+                        return "Please UserId length 6 - 12";
                       } else if (value.length < 6 || value.length > 12) {
-                        return "Please fill UserId Correctly";
+                        return "This Username is same daabase";
                       }
                     }),
                 TextFormField(
                     decoration: InputDecoration(
                       labelText: "Name",
-                      hintText: "ex. 'John Snow'",
-                      icon: Icon(Icons.account_circle,
-                          size: 40, color: Colors.grey),
+                      hintText: "Example. 'Apichart Pack'",
+                      icon: Icon(
+                        Icons.account_circle,
+                        size: 30,
+                      ),
                     ),
                     controller: name,
                     keyboardType: TextInputType.text,
                     validator: (value) {
                       if (value.isEmpty) {
                         return "Please fill out this form";
-                      } else if (countSpace(value) != 1) {
-                        return "Please fill Name Correctly";
+                      } else if (spaceInName(value) != 1) {
+                        return "Please have only one space in your name. \nExample. 'Apichart Pack'";
                       }
                     }),
                 TextFormField(
                     decoration: InputDecoration(
                       labelText: "Age",
                       hintText: "Please fill Age Between 10 to 80",
-                      icon:
-                          Icon(Icons.event_note, size: 40, color: Colors.grey),
+                      icon: Icon(
+                        Icons.event_note,
+                        size: 30,
+                      ),
                     ),
                     controller: age,
                     keyboardType: TextInputType.number,
                     validator: (value) {
                       if (value.isEmpty) {
-                        return "Please fill Age";
+                        return "Please fill in the information Age";
+                        ;
                       } else if (!isNumeric(value) ||
                           int.parse(value) < 10 ||
                           int.parse(value) > 80) {
-                        return "Please fill Age correctly";
+                        return "Please check Age Between 10 to 80 ? \nExample. '15'";
                       }
                     }),
                 TextFormField(
                     decoration: InputDecoration(
                       labelText: "Password",
                       hintText: "Password must be longer than 6",
-                      icon: Icon(Icons.lock, size: 40, color: Colors.grey),
+                      icon: Icon(
+                        Icons.lock,
+                        size: 30,
+                      ),
                     ),
                     controller: password,
                     obscureText: true,
                     keyboardType: TextInputType.text,
                     validator: (value) {
                       if (value.isEmpty || value.length <= 6) {
-                        return "Please fill Password Correctly";
+                        return "Please check Password loger 6";
                       }
                     }),
                 TextFormField(
                     decoration: InputDecoration(
                       labelText: "Quote",
-                      hintText: "Explain you self!",
-                      icon: Icon(Icons.settings_system_daydream,
-                          size: 40, color: Colors.grey),
+                      hintText: "Quote",
+                      icon: Icon(
+                        Icons.textsms,
+                        size: 30,
+                      ),
                     ),
                     controller: quote,
                     keyboardType: TextInputType.text,
@@ -170,7 +182,6 @@ class ProfilePageState extends State<ProfilePage> {
                         }
                       }
 
-                      //validate form
                       if (_formKey.currentState.validate()) {
                         await isUserTaken(user_Data);
                         print(this.user_state);
@@ -182,8 +193,12 @@ class ProfilePageState extends State<ProfilePage> {
                           StateUserLogin.age = user_Data.age;
                           StateUserLogin.password = user_Data.password;
                           StateUserLogin.quote = user_Data.quote;
-                          Navigator.pop(context);
-                          print('insert complete');
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => HomePagescreen(),
+                            ),
+                          );
                         }
                       }
 
@@ -196,7 +211,6 @@ class ProfilePageState extends State<ProfilePage> {
                       }
 
                       showAllUser();
-                      print(StateUserLogin.whoCurrent());
                     }),
               ]),
         ));

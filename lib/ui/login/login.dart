@@ -24,13 +24,12 @@ class LoginPageState extends State<LoginPage> {
   void setState(fn) {
     // TODO: implement setState
     super.setState(fn);
-    chk2(String check_user, String check_password) async {
+    checkUserPassword(String check_user, String check_password) async {
       await user.open("user.db");
       Future<List<User>> allUser = user.getAllUser();
       Future isUserValid(String userid, String password) async {
         var alluser = await allUser;
         for (var i = 0; i < alluser.length; i++) {
-          print(i);
           if (check_user == alluser[i].userid &&
               check_password == alluser[i].password) {
             StateUserLogin.id = alluser[i].id;
@@ -43,6 +42,7 @@ class LoginPageState extends State<LoginPage> {
             sharedPreferences = await SharedPreferences.getInstance();
             sharedPreferences.setString("username", alluser[i].userid);
             sharedPreferences.setString("password", alluser[i].password);
+            sharedPreferences.setString("name", alluser[i].name);
             break;
           }
         }
@@ -60,7 +60,7 @@ class LoginPageState extends State<LoginPage> {
       String check_user = sharedPreferences.getString('username');
       String check_password = sharedPreferences.getString('password');
       if (check_user != "" && check_user != null) {
-        chk2(check_user, check_password);
+        checkUserPassword(check_user, check_password);
       }
       print(check_user);
     }
@@ -71,13 +71,14 @@ class LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     setState(() {
-      chk2(String check_user, String check_password) async {
+      checkUserPassword(String check_user, String check_password) async {
         await user.open("user.db");
         Future<List<User>> allUser = user.getAllUser();
         Future isUserValid(String userid, String password) async {
           var alluser = await allUser;
           for (var i = 0; i < alluser.length; i++) {
-            print('${userid} == ${alluser[i].userid} ${password} == ${alluser[i].password}');
+            print(
+                '${userid} == ${alluser[i].userid} ${password} == ${alluser[i].password}');
             if (userid == alluser[i].userid &&
                 password == alluser[i].password) {
               StateUserLogin.id = alluser[i].id;
@@ -90,11 +91,13 @@ class LoginPageState extends State<LoginPage> {
               sharedPreferences = await SharedPreferences.getInstance();
               sharedPreferences.setString("username", alluser[i].userid);
               sharedPreferences.setString("password", alluser[i].password);
+              sharedPreferences.setString("password", alluser[i].name);
               return Navigator.pushReplacementNamed(context, '/home');
               break;
             }
           }
         }
+
         isUserValid(check_user, check_password);
       }
 
@@ -102,10 +105,13 @@ class LoginPageState extends State<LoginPage> {
         sharedPreferences = await SharedPreferences.getInstance();
         String check_user = sharedPreferences.getString('username');
         String check_password = sharedPreferences.getString('password');
+        String name = sharedPreferences.getString('name');
+
         if (check_user != "" && check_user != null) {
-          chk2(check_user, check_password);
+          checkUserPassword(check_user, check_password);
         }
         print(check_user);
+        print("name : --- ${name}");
       }
 
       getCredential();
@@ -118,39 +124,57 @@ class LoginPageState extends State<LoginPage> {
       body: Form(
         key: _formkey,
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(20, 15, 30, 0),
+          padding: const EdgeInsets.all(20),
           children: <Widget>[
             Image.asset(
               "resource/lock.jpg",
               width: 150,
               height: 150,
             ),
-            TextFormField(
-                decoration: InputDecoration(
-                  labelText: "User Id",
-                  icon: Icon(Icons.person, size: 40, color: Colors.grey),
-                ),
-                controller: userid,
-                keyboardType: TextInputType.text,
-                validator: (value) {
-                  if (value.isNotEmpty) {
-                    this.formState += 1;
-                  }
-                }),
-            TextFormField(
-                decoration: InputDecoration(
-                  labelText: "Password",
-                  icon: Icon(Icons.lock, size: 40, color: Colors.grey),
-                ),
-                controller: password,
-                obscureText: true,
-                keyboardType: TextInputType.text,
-                validator: (value) {
-                  if (value.isNotEmpty) {
-                    this.formState += 1;
-                  }
-                }),
-            Padding(padding: EdgeInsets.fromLTRB(0, 15, 0, 10)),
+            Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: TextFormField(
+                  decoration: InputDecoration(
+                    labelText: "User Id",
+                    labelStyle: new TextStyle(
+                      fontSize: 18.0,
+                    ),
+                    prefixIcon: Icon(
+                      Icons.person,
+                      size: 30,
+                    ),
+                  ),
+                  controller: userid,
+                  keyboardType: TextInputType.text,
+                  validator: (value) {
+                    if (value.isNotEmpty) {
+                      this.formState += 1;
+                    }
+                  }),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: TextFormField(
+                  decoration: InputDecoration(
+                    labelText: "Password",
+                    labelStyle: new TextStyle(
+                      fontSize: 18.0,
+                    ),
+                    prefixIcon: Icon(
+                      Icons.lock,
+                      size: 30,
+                    ),
+                  ),
+                  controller: password,
+                  obscureText: true,
+                  keyboardType: TextInputType.text,
+                  validator: (value) {
+                    if (value.isNotEmpty) {
+                      this.formState += 1;
+                    }
+                  }),
+            ),
+            Padding(padding: EdgeInsets.all(8.0)),
             RaisedButton(
               child: Text("LOGIN"),
               onPressed: () async {
@@ -207,7 +231,7 @@ class LoginPageState extends State<LoginPage> {
             ),
             FlatButton(
               child: Container(
-                child: Text("register new user", textAlign: TextAlign.right),
+                child: Text("Register New Account", textAlign: TextAlign.right),
               ),
               onPressed: () {
                 Navigator.of(context).pushNamed('/register');

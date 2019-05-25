@@ -2,60 +2,58 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:async';
-import './todo.dart';
 
-class FriendPage extends StatefulWidget {
-  @override
-  State<StatefulWidget> createState() {
-    return FriendPageState();
-  }
-}
+Future<List<Todo>> fetchJsonTodo(int userid) async {
+  final response = await http
+      .get('https://jsonplaceholder.typicode.com/todos?userId=${userid}');
 
-Future<List<User>> fetchJsonUsers() async {
-  final response = await http.get('https://jsonplaceholder.typicode.com/users');
-
-  List<User> userJson = [];
+  List<Todo> todoJson = [];
 
   if (response.statusCode == 200) {
     // If the call to the server was successful, parse the JSON
     var body = json.decode(response.body);
     for (int i = 0; i < body.length; i++) {
-      var user = User.fromJson(body[i]);
-      userJson.add(user);
+      var todo = Todo.fromJson(body[i]);
+      print(todo);
+      if (todo.userid == userid) {
+        todoJson.add(todo);
+      }
     }
-    return userJson;
+    return todoJson;
   } else {
     // If that call was not successful, throw an error.
-    throw Exception('Dont loadind');
+    throw Exception('Failed to load post');
   }
 }
 
-class User {
+class Todo {
+  final int userid;
   final int id;
-  final String name;
-  final String email;
-  final String phone;
-  final String website;
+  final String title;
+  final String completed;
 
-  User({this.id, this.name, this.email, this.phone, this.website});
+  Todo({this.userid, this.id, this.title, this.completed});
 
-  factory User.fromJson(Map<String, dynamic> json) {
-    return User(
+  factory Todo.fromJson(Map<String, dynamic> json) {
+    return Todo(
+      userid: json['userId'],
       id: json['id'],
-      name: json['name'],
-      email: json['email'],
-      phone: json['phone'],
-      website: json['website'],
+      title: json['title'],
+      completed: (json['completed'] ? "Completed" : ""),
     );
   }
 }
 
-class FriendPageState extends State<FriendPage> {
+class TodoPage extends StatelessWidget {
+  final int id;
+  final String name;
+  TodoPage({Key key, @required this.id, @required this.name}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("My Friends"),
+        title: Text("Todos"),
         automaticallyImplyLeading: false,
       ),
       body: Container(
@@ -67,9 +65,9 @@ class FriendPageState extends State<FriendPage> {
                 minWidth: 350.0,
                 height: 50.0,
                 child: RaisedButton(
-                  child: Text("BACK",style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold)),
+                  child: Text("BACK",style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),),
                   onPressed: () {
-                    Navigator.of(context).pushReplacementNamed('/home');
+                    Navigator.pop(context);
                   },
                   color: Colors.white,
                   shape: new RoundedRectangleBorder(
@@ -77,23 +75,13 @@ class FriendPageState extends State<FriendPage> {
                 ),
               ),
             ),
-            // RaisedButton(
-            //   child: Text("BACK"),
-            //   onPressed: () {
-            //     Navigator.of(context).pushReplacementNamed('/home');
-            //   },
-            // ),
             FutureBuilder(
-              future: fetchJsonUsers(),
+              future: fetchJsonTodo(this.id),
               builder: (BuildContext context, AsyncSnapshot snapshot) {
                 switch (snapshot.connectionState) {
                   case ConnectionState.none:
                   case ConnectionState.waiting:
-                    return Column(
-                      children: <Widget>[
-                        Text('Wait mins to loading !!!'),
-                      ],
-                    );
+                    return new Text('Wait mins to loading !!!');
                   default:
                     if (snapshot.hasError) {
                       return new Text('Error: ${snapshot.error}');
@@ -110,7 +98,7 @@ class FriendPageState extends State<FriendPage> {
   }
 
   Widget createListView(BuildContext context, AsyncSnapshot snapshot) {
-    List<User> values = snapshot.data;
+    List<Todo> values = snapshot.data;
     return new Expanded(
       child: new ListView.builder(
         itemCount: values.length,
@@ -120,42 +108,32 @@ class FriendPageState extends State<FriendPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  Text(
-                    "${(values[index].id).toString()} : ${values[index].name}",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                  Padding(
+                    padding: const EdgeInsets.all(5.0),
+                    child: Text(
+                      (values[index].id).toString(),
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                    ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.only(
-                        top: 10.0, left: 5.0, bottom: 5.0),
+                    padding: const EdgeInsets.all(5.0),
                     child: Text(
-                      values[index].email,
+                      values[index].title,
                       style: TextStyle(fontSize: 18),
                     ),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(5.0),
                     child: Text(
-                      values[index].phone,
-                      style: TextStyle(fontSize: 18),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(5.0),
-                    child: Text(
-                      values[index].website,
-                      style: TextStyle(fontSize: 18),
+                      values[index].completed,
+                      style: TextStyle(
+                        fontSize: 18,
+                      ),
                     ),
                   ),
                 ],
               ),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => TodoPage(id: values[index].id),
-                  ),
-                );
-              },
             ),
           );
         },

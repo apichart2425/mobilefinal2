@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../model/stateuser.dart';
+import '../../model/stateuser.dart';
 
 SharedPreferences sharedPreferences;
 
@@ -16,6 +16,8 @@ class HomePagescreen extends StatefulWidget {
 
 class HomePageState extends State<HomePagescreen> {
   String data = '';
+  String nameSP = StateUserLogin.name;
+
   Future<String> get _localPath async {
     final directory = await getApplicationDocumentsDirectory();
     // For your reference print the AppDoc directory
@@ -27,12 +29,18 @@ class HomePageState extends State<HomePagescreen> {
     return File('$path/data.txt');
   }
 
-  Future<String> readcontent() async {
+  Future<String> readfile() async {
     try {
       final file = await _localFile;
       // Read the file
       String contents = await file.readAsString();
       this.data = contents;
+      if (data != StateUserLogin.quote) {
+        await file.writeAsString(StateUserLogin.quote);
+        String contents = await file.readAsString();
+        this.data = contents;
+        print('${data} ----------- testing');
+      }
       return this.data;
     } catch (e) {
       // If there is an error reading, return a default String
@@ -40,18 +48,25 @@ class HomePageState extends State<HomePagescreen> {
     }
   }
 
+  getname() async {
+    sharedPreferences = await SharedPreferences.getInstance();
+    this.nameSP = sharedPreferences.getString('name');
+    print(nameSP);
+  }
+
   @override
   void setState(fn) {
     // TODO: implement setState
     super.setState(fn);
-    readcontent();
+    readfile();
   }
 
   @override
   Widget build(BuildContext context) {
     setState(() {
-      readcontent();
+      readfile();
     });
+    getname();
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -66,13 +81,14 @@ class HomePageState extends State<HomePagescreen> {
           children: <Widget>[
             ListTile(
               title: Text(
-                'Hello ${StateUserLogin.name}',
+                'Hello ${nameSP}' ,
                 style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
               ),
               subtitle: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 10.0),
                 child: Text(
-                    'this is my quote "${StateUserLogin.quote != null ? StateUserLogin.quote == '' ? 'No data quote' : data == '' ? StateUserLogin.quote : data : 'No data quote'}"', style: TextStyle(fontSize: 18.0)),
+                    'this is my quote "${StateUserLogin.quote != null ? StateUserLogin.quote == '' ? 'No data quote' : data == '' ? StateUserLogin.quote : data : 'No data quote'}"',
+                    style: TextStyle(fontSize: 18.0)),
               ),
             ),
             Padding(
@@ -99,13 +115,13 @@ class HomePageState extends State<HomePagescreen> {
               child: RaisedButton(
                 child: Text("SIGN OUT"),
                 onPressed: () {
-                  test() async {
+                  check() async {
                     sharedPreferences = await SharedPreferences.getInstance();
                     sharedPreferences.setString('username', '');
                     sharedPreferences.setString('password', '');
                   }
 
-                  test();
+                  check();
                   StateUserLogin.userid = null;
                   StateUserLogin.name = null;
                   StateUserLogin.age = null;

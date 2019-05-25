@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import './ui/login/register.dart';
 import './ui/login/login.dart';
-import './ui/home.dart';
-import './ui/profile.dart';
-import './ui/friend.dart';
+import './ui/function/home.dart';
+import './ui/function/profile.dart';
+import './ui/function/friend.dart';
 
 void main() => runApp(MyApp());
 const PrimaryColor = const Color(0xffb71c1c);
